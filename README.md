@@ -1,6 +1,7 @@
 # How to use
 ### Before usage
 You need to prepare your data with [fts-with-dexie-core](https://www.npmjs.com/package/fts-with-dexie-core). You can prepare the data from client-side or from backend (nodejs)
+### Usage
 ```js
 import { 
     getDbInstance,
