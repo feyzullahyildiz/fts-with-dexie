@@ -1,7 +1,19 @@
 {
   "name": "fts-with-dexie",
-  "version": "0.0.1",
-  "description": "",
+  "version": "0.1.3",
+  "description": "A Library that you can do the full text search in client side",
+  "repository": {
+    "url": "https://github.com/feyzullahyildiz/fts-with-dexie"
+  },
+  "keywords": [
+    "full-text-search",
+    "fts",
+    "indexeddb",
+    "dexie"
+  ],
+  "files": [
+    "dist"
+  ],
   "source": "src/index.ts",
   "main": "dist/main.js",
   "module": "dist/module.js",

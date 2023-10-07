@@ -5,6 +5,7 @@ import { ConfigType, RecommendedSlugifyAllowedCharacters, parseData } from 'fts-
 import { slugify } from 'transliteration';
 import { insertBulkData } from "../lib/insertData";
 import { search } from "../lib/search";
+import CarJson from './car_data_for_test.json';
 
 const mySlugify = (str: string) => slugify(str, { allowedChars: RecommendedSlugifyAllowedCharacters });
 
@@ -76,4 +77,41 @@ describe('search', () => {
         const ids = await search(table, 'yildizlar')
         expect(ids).toEqual([1])
     })
+    it('should search', async () => {
+        const ids = await search(table, 'ma')
+        expect(ids).toEqual([3, 2])
+    })
+    it('should search', async () => {
+        const ids = await search(table, 'at')
+        expect(ids).toEqual([])
+    })
+});
+
+describe('search with cars', () => {
+    let db: Dexie = null!;
+    let table: Dexie.Table = null!;
+    beforeAll(() => {
+        db = getMockDexie();
+        initTable(db);
+        table = getTable(db);
+    })
+    const config: ConfigType = {
+        idPropertyName: 'id',
+        ftsFieldNames: ['_brand', "_model"],
+        ftsFieldWeights: [1.2, 1],
+    }
+    it('should insert cars', async () => {
+        const parsedDatas = CarJson
+            .map(c => ({ ...c, _brand: mySlugify(c.brand), _model: mySlugify(c.model) }))
+            .map(item => parseData(config, item));
+        await insertBulkData(table, parsedDatas);
+        const count = await table.count()
+        expect(count).toBe(733);
+    }, 15 * 1000);
+
+    it('should search for cars', async () => {
+        const idArray = await search(table, [mySlugify("Citroë"), "c"], 3)
+        expect(idArray.sort()).toEqual(["5-11", "5-10", "5-1"].sort())
+    })
+
 })

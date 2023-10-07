@@ -15,25 +15,25 @@ const getExportedDataFromRows = (rows: Row[], maxRow: number) => {
             idMap.set(idValue, totalRatingValue + ratingValue)
         }
     }
-    const ratingSorted = Array.from(idMap.entries()).sort((a, b) => a[1] > b[1] ? 1 : -1)
+    const ratingSorted = Array.from(idMap.entries()).sort((a, b) => a[1] < b[1] ? 1 : -1)
     const firstMaxItems = ratingSorted.splice(0, maxRow)
     const idList = firstMaxItems.map(a => a[0])
     return idList;
 }
-export const search = async (table: Dexie.Table, text: string, maxRow = 10) => {
-    const result = await table.where('key').equals(text).toArray();
 
-    let rowCount = 0;
-    if (result[0]) {
-        rowCount = result[0].idList.length;
+export const search = async (table: Dexie.Table, text: string | Array<string>, maxRow = 10) => {
+    const searchKey = typeof text === 'string' ? [text] : text;
+    const rows = await table.where('key').startsWithAnyOf(searchKey).toArray();
+    if (rows.length === 0) {
+        return [];
     }
-    if (maxRow <= rowCount) {
-        return getExportedDataFromRows(result, maxRow);
-    }
-    const likeResult = await table.where('key').startsWith(text).toArray();
-
-    return getExportedDataFromRows(
-        [...result, ...likeResult], maxRow
-    )
-
+    return getExportedDataFromRows(rows, maxRow)
 }
+// export const fastSearch = async (table: Dexie.Table, text: string | Array<string>, maxRow = 10) => {
+//     const searchKey = typeof text === 'string' ? [text] : text;
+//     const rows = await table.where('key').anyOf(searchKey).toArray();
+//     if (rows.length === 0) {
+//         return [];
+//     }
+//     return getExportedDataFromRows(rows, maxRow)
+// }
